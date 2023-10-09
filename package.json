@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "ts": "tsc --project ./tsconfig.test.json --watch"
+  },
+  "devDependencies": {
+    "@types/d3-scale": "^4.0.5",
+    "d3-scale": "^4.0.2",
+    "typescript": "^5.2.2"
+  }
+}

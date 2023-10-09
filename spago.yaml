@@ -1,0 +1,32 @@
+package:
+  dependencies:
+    - arrays
+    - colors
+    - console
+    - convertable-options
+    - datetime
+    - debug
+    - effect
+    - fast-vect
+    - foreign
+    - functions
+    - integers
+    - js-date
+    - maybe
+    - nullable
+    - numbers
+    - pairs
+    - partial
+    - prelude
+    - profunctor-lenses
+    - tuples
+    - unfoldable
+    - unsafe-coerce
+  name: szalinski
+  test:
+    dependencies: []
+    main: Test.Main
+workspace:
+  extra_packages: {}
+  package_set:
+    registry: 42.5.0

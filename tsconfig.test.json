@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "lib": ["es6", "dom"],
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "module": "es6"
+  },
+  "include": ["test/**/*.ts"]
+}
