@@ -7,10 +7,14 @@ import Prelude
 import Color as Color
 import Data.Function.Uncurried (Fn2)
 import Data.Function.Uncurried as Uncurried
-import Debug as Debug
 import Effect (Effect)
+import Effect.Aff as Aff
 import Scale ((~))
 import Scale as Scale
+import Test.Spec as Spec
+import Test.Spec.Assertions (shouldEqual)
+import Test.Spec.Reporter as Reporter
+import Test.Spec.Runner as Runner
 
 foreign import scaleLinear_
   :: forall range
@@ -18,31 +22,47 @@ foreign import scaleLinear_
        (Number -> range)
 
 main :: Effect Unit
-main = do
-  let
-    scaleColor = Scale.linear @3 { domain: 0.0 ~ 100.0, range: Color.white ~ Color.black }
-    scaleColor_ = Uncurried.runFn2 scaleLinear_ ([ 0.0, 100.0 ]) ([ "white", "black" ])
+main = Aff.launchAff_ do
+  Runner.runSpec [ Reporter.consoleReporter ] do
+    Spec.describe "linear" do
 
-  Debug.traceM (scaleColor 10.0)
-  Debug.traceM (scaleColor_ 10.0)
+      Spec.it "should interpolate range of numbers" do
+        let scale = Scale.linear @1 { domain: 0.0 ~ 100.0, range: 0.0 ~ 20.0 }
+        scale 0.0 `shouldEqual` 0.0
+        scale 25.0 `shouldEqual` 5.0
 
-  Debug.traceM "\n"
+      Spec.it "should extrapolate range of numbers" do
+        let scale = Scale.linear @1 { domain: 0.0 ~ 100.0, range: 0.0 ~ 20.0 }
+        scale 200.0 `shouldEqual` 40.0
 
-  Debug.traceM (scaleColor 80.0)
-  Debug.traceM (scaleColor_ 80.0)
+      Spec.it "should interpolate range of pairs of numbers" do
+        let scale = Scale.linear @2 { domain: 0.0 ~ 100.0, range: (0.0 ~ 80.0) ~ (10.0 ~ 100.0) }
+        scale 0.0 `shouldEqual` (0.0 ~ 80.0)
+        scale 25.0 `shouldEqual` (2.5 ~ 85.0)
 
-  Debug.traceM "\n"
+      Spec.it "should interpolate hue in color range" do
+        let scale = Scale.linear @3 { domain: 0.0 ~ 100.0, range: Color.hsl 100.0 0.5 0.5 ~ Color.hsl 200.0 0.5 0.5 }
+        scale 50.0 `shouldEqual` Color.hsl 150.0 0.5 0.5
+        scale (-50.0) `shouldEqual` Color.hsl 50.0 0.5 0.5
 
-  Debug.traceM (scaleColor 60.0)
-  Debug.traceM (scaleColor_ 60.0)
+      Spec.it "should interpolate hue, saturation, and luminance in color range" do
+        let scale = Scale.linear @3 { domain: 0.0 ~ 100.0, range: Color.hsl 100.0 0.0 0.0 ~ Color.hsl 200.0 1.0 1.0 }
+        scale 50.0 `shouldEqual` Color.hsl 150.0 0.5 0.5
 
-  -- Debug.traceM (scaleColor 64.0)
-  -- Debug.traceM (scaleColor_ 64.0)
+      Spec.it "should extrapolate hue in color range" do
+        let scale = Scale.linear @3 { domain: 0.0 ~ 100.0, range: Color.hsl 100.0 0.5 0.5 ~ Color.hsl 200.0 0.5 0.5 }
+        scale (-50.0) `shouldEqual` Color.hsl 50.0 0.5 0.5
+        scale (-200.0) `shouldEqual` Color.hsl 260.0 0.5 0.5
+        scale 300.0 `shouldEqual` Color.hsl 40.0 0.5 0.5
 
-  -- Debug.traceM (scaleColor 0.0)
-  -- Debug.traceM (scaleColor_ 0.0)
-
-  -- Debug.traceM (scaleColor 100.0)
-  -- Debug.traceM (scaleColor_ 100.0)
-
-  pure unit
+      Spec.it "should match output of d3.scaleLinear" do
+        let
+          scale = Scale.linear @3 { domain: 0.0 ~ 100.0, range: Color.hsl 100.0 0.5 0.5 ~ Color.hsl 200.0 0.5 0.5 }
+          scale' = Uncurried.runFn2 scaleLinear_
+            [ 0.0, 100.0 ]
+            [ Color.hsl 100.0 0.5 0.5, Color.hsl 200.0 0.5 0.5 ]
+        scale 0.0 `shouldEqual` scale' 0.0
+        scale 10.0 `shouldEqual` scale' 10.0
+        scale 50.0 `shouldEqual` scale' 50.0
+        scale 100.0 `shouldEqual` scale' 100.0
+        scale 200.0 `shouldEqual` scale' 200.0
