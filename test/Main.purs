@@ -27,40 +27,82 @@ main = Aff.launchAff_ do
     Spec.describe "linear" do
 
       Spec.it "should interpolate range of numbers" do
-        let scale = Scale.linear @1 { domain: 0.0 ~ 100.0, range: 0.0 ~ 20.0 }
+        let
+          scale =
+            Scale.linear
+              { domain: 0.0 ~ 100.0
+              , range: 0.0 ~ 20.0
+              , clamp: false
+              }
         scale 0.0 `shouldEqual` 0.0
         scale 25.0 `shouldEqual` 5.0
 
       Spec.it "should extrapolate range of numbers" do
-        let scale = Scale.linear @1 { domain: 0.0 ~ 100.0, range: 0.0 ~ 20.0 }
+        let
+          scale =
+            Scale.linear
+              { domain: 0.0 ~ 100.0
+              , range: 0.0 ~ 20.0
+              , clamp: false
+              }
         scale 200.0 `shouldEqual` 40.0
 
       Spec.it "should interpolate range of pairs of numbers" do
-        let scale = Scale.linear @2 { domain: 0.0 ~ 100.0, range: (0.0 ~ 80.0) ~ (10.0 ~ 100.0) }
+        let
+          scale =
+            Scale.linear
+              { domain: 0.0 ~ 100.0
+              , range: (0.0 ~ 80.0) ~ (10.0 ~ 100.0)
+              , clamp: false
+              }
         scale 0.0 `shouldEqual` (0.0 ~ 80.0)
         scale 25.0 `shouldEqual` (2.5 ~ 85.0)
 
       Spec.it "should interpolate hue in color range" do
-        let scale = Scale.linear @3 { domain: 0.0 ~ 100.0, range: Color.hsl 100.0 0.5 0.5 ~ Color.hsl 200.0 0.5 0.5 }
+        let
+          scale =
+            Scale.linear
+              { domain: 0.0 ~ 100.0
+              , range: Color.hsl 100.0 0.5 0.5 ~ Color.hsl 200.0 0.5 0.5
+              , clamp: false
+              }
         scale 50.0 `shouldEqual` Color.hsl 150.0 0.5 0.5
         scale (-50.0) `shouldEqual` Color.hsl 50.0 0.5 0.5
 
       Spec.it "should interpolate hue, saturation, and luminance in color range" do
-        let scale = Scale.linear @3 { domain: 0.0 ~ 100.0, range: Color.hsl 100.0 0.0 0.0 ~ Color.hsl 200.0 1.0 1.0 }
+        let
+          scale =
+            Scale.linear
+              { domain: 0.0 ~ 100.0
+              , range: Color.hsl 100.0 0.0 0.0 ~ Color.hsl 200.0 1.0 1.0
+              , clamp: false
+              }
         scale 50.0 `shouldEqual` Color.hsl 150.0 0.5 0.5
 
       Spec.it "should extrapolate hue in color range" do
-        let scale = Scale.linear @3 { domain: 0.0 ~ 100.0, range: Color.hsl 100.0 0.5 0.5 ~ Color.hsl 200.0 0.5 0.5 }
+        let
+          scale =
+            Scale.linear
+              { domain: 0.0 ~ 100.0
+              , range: Color.hsl 100.0 0.5 0.5 ~ Color.hsl 200.0 0.5 0.5
+              , clamp: false
+              }
         scale (-50.0) `shouldEqual` Color.hsl 50.0 0.5 0.5
         scale (-200.0) `shouldEqual` Color.hsl 260.0 0.5 0.5
         scale 300.0 `shouldEqual` Color.hsl 40.0 0.5 0.5
 
       Spec.it "should match output of d3.scaleLinear" do
         let
-          scale = Scale.linear @3 { domain: 0.0 ~ 100.0, range: Color.hsl 100.0 0.5 0.5 ~ Color.hsl 200.0 0.5 0.5 }
-          scale' = Uncurried.runFn2 scaleLinear_
-            [ 0.0, 100.0 ]
-            [ Color.hsl 100.0 0.5 0.5, Color.hsl 200.0 0.5 0.5 ]
+          scale =
+            Scale.linear
+              { domain: 0.0 ~ 100.0
+              , range: Color.hsl 100.0 0.5 0.5 ~ Color.hsl 200.0 0.5 0.5
+              , clamp: false
+              }
+          scale' =
+            Uncurried.runFn2 scaleLinear_
+              [ 0.0, 100.0 ]
+              [ Color.hsl 100.0 0.5 0.5, Color.hsl 200.0 0.5 0.5 ]
         scale 0.0 `shouldEqual` scale' 0.0
         scale 10.0 `shouldEqual` scale' 10.0
         scale 50.0 `shouldEqual` scale' 50.0

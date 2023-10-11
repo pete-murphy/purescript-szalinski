@@ -1,87 +1,70 @@
 module Scale
-  ( module Data.Pair
-  , class Continuous
-  , toVect
-  , fromVect
+  ( class Continuous
+  , interpolate
   , linear
-  , linear'
+  , linearBy
+  , module Data.Pair
   ) where
 
 import Prelude
 
 import Color (Color)
 import Color as Color
-import Data.FastVect.Common as Common
-import Data.FastVect.FastVect (Vect, (:))
-import Data.FastVect.FastVect as FastVect
 import Data.Pair (Pair, (~))
-import Data.Reflectable (class Reflectable)
-import Prim.Int (class Compare)
-import Prim.Ordering (GT)
 
-class Continuous a (n :: Int) where
-  toVect :: a -> Vect n Number
-  fromVect :: Vect n Number -> a
+class Continuous a where
+  interpolate :: a -> a -> Number -> a
 
-instance
-  ( Compare n Common.Zero GT
-  , Reflectable n Int
-  ) =>
-  Continuous Number n where
-  toVect = FastVect.replicate (Common.term :: _ n)
-  fromVect = FastVect.head
+instance Continuous Number where
+  interpolate n1 n2 d = n1 + (d * (n2 - n1))
 
-instance Continuous (Pair Number) 2 where
-  toVect (n1 ~ n2) = n1 : n2 : FastVect.empty
-  fromVect vect = do
+-- TODO: Distinguish color spaces to interpolate within?
+instance Continuous Color where
+  interpolate c1 c2 d = do
     let
-      n1 = FastVect.index (Common.term :: _ 0) vect
-      n2 = FastVect.index (Common.term :: _ 1) vect
-    n1 ~ n2
-
-instance Continuous Color 3 where
-  toVect color = do
-    let
-      { h, s, l } = Color.toHSLA color
-    h : s : l : FastVect.empty
-  fromVect vect = do
-    let
-      h' = FastVect.index (Common.term :: _ 0) vect
+      hsla1 = Color.toHSLA c1
+      hsla2 = Color.toHSLA c2
+      h' = interpolate hsla1.h hsla2.h d
       h = if h' < 0.0 then h' + 360.0 else if h' > 360.0 then h' - 360.0 else h'
-      s = FastVect.index (Common.term :: _ 1) vect `min` 1.0
-      l = FastVect.index (Common.term :: _ 2) vect `min` 1.0
+      s = clamp 0.0 1.0 (interpolate hsla1.s hsla2.s d)
+      l = clamp 0.0 1.0 (interpolate hsla1.l hsla2.l d)
     Color.hsl h s l
 
-linear
-  :: forall domain range (@n :: Int)
-   . Continuous domain n
-  => Continuous range n
-  => Compare n Common.NegOne GT
-  => Reflectable n Int
-  => { domain :: Pair domain
-     , range :: Pair range
-     }
-  -> domain
-  -> range
-linear { domain, range } d = do
-  let
-    d1 ~ d2 = toVect @domain @n <$> domain
-    r1 ~ r2 = toVect @range @n <$> range
-    d' = toVect d
-    v = r1 + ((/) <$> ((d' - d1) * (r2 - r1)) <*> (d2 - d1))
-  fromVect v
+instance Continuous a => Continuous (Pair a) where
+  interpolate p1 p2 d = do
+    let
+      x1 ~ y1 = p1
+      x2 ~ y2 = p2
+      x = interpolate x1 x2 d
+      y = interpolate y1 y2 d
+    x ~ y
 
-linear'
-  :: { domain :: Pair Number
-     , range :: Pair Number
+linear
+  :: forall range
+   . Continuous range
+  => { domain :: Pair Number
+     , range :: Pair range
+     , clamp :: Boolean
      }
   -> Number
+  -> range
+linear =
+  linearBy interpolate
+
+type Interpolator range = range -> range -> Number -> range
+
+linearBy
+  :: forall range
+   . Interpolator range
+  -> { domain :: Pair Number
+     , range :: Pair range
+     , clamp :: Boolean
+     }
   -> Number
-linear' { domain, range } d' = do
+  -> range
+linearBy interpolator params d = do
   let
-    d1 ~ d2 = domain
-    r1 ~ r2 = range
-  --                    (d - d1) / (d2 - d1)   == (r - r1) / (r2 - r1)
-  --       (r2 - r1) * ((d - d1) / (d2 - d1))  ==  r - r1
-  -- r1 + ((r2 - r1) * ((d - d1) / (d2 - d1))) ==  r 
-  r1 + (d' - d1) * (r2 - r1) / (d2 - d1)
+    d1 ~ d2 = params.domain
+    r1 ~ r2 = params.range
+    d' = if params.clamp then clamp d1 d2 d else d
+  interpolator r1 r2 ((d' - d1) / (d2 - d1))
