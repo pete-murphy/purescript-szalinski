@@ -19,7 +19,10 @@ package:
     - partial
     - prelude
     - profunctor-lenses
+    - quickcheck
     - spec
+    - spec-quickcheck
+    - string-parsers
     - tuples
     - unfoldable
     - unsafe-coerce
