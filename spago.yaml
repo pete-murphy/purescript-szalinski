@@ -7,7 +7,6 @@ package:
     - datetime
     - debug
     - effect
-    - fast-vect
     - foreign
     - functions
     - integers

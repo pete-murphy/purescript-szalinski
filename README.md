@@ -1,3 +1,46 @@
 # purescript-szalinski
 
-Porting `d3-scale` to PureScript
+Porting ~~`d3-scale`~~ [`elm-visualization`](https://package.elm-lang.org/packages/gampleman/elm-visualization/latest/) to PureScript
+
+## TODO
+
+- [ ] Axis (152)
+- [ ] Brush (769)
+- [ ] Color/Lab (150)
+- [ ] Events (75)
+- [ ] Force (279)
+- [ ] Force/Collision (142)
+- [ ] Force/Jiggle (15)
+- [ ] Force/ManyBody (152)
+- [ ] Force/QuadTree (231)
+- [ ] Hierarchy (257)
+- [ ] Hierarchy/Partition (72)
+- [ ] Hierarchy/Tidy (491)
+- [ ] Hierarchy/Treemap (219)
+- [ ] Histogram (104)
+- [ ] Histogram/Array (30)
+- [ ] Interpolation (340)
+- [ ] Scale (251)
+- [x] Scale/Band (74)
+- [ ] Scale/Color (522)
+- [ ] Scale/Continuous (220)
+- [ ] Scale/Diverging (53)
+- [ ] Scale/Log (193)
+- [ ] Scale/Ordinal (20)
+- [ ] Scale/Quantile (64)
+- [ ] Scale/Quantize (76)
+- [ ] Scale/Sequential (37)
+- [ ] Scale/Threshold (22)
+- [ ] Scale/Time (127)
+- [ ] Shape (158)
+- [ ] Shape/Bump (45)
+- [ ] Shape/Generators (48)
+- [ ] Shape/Pie (484)
+- [ ] Shape/Stack (181)
+- [x] Statistics (212)
+  - [ ] `peakiness`
+- [ ] Transition (340)
+- [ ] Zoom (544)
+- [ ] Zoom/Interpolation (93)
+- [ ] Zoom/Matrix (6)
+- [ ] Zoom/Transform (21)
